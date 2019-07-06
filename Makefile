@@ -11,6 +11,10 @@ CMSIS = ../CMSIS_5
 QEMU_PATH = /usr/local/bin/qemu-system-arm
 
 LINKER_SCRIPT = gcc_arm.ld
+LINKER_ARGS = -Xlinker --defsym=__ROM_BASE=0x10000000 \
+	-Xlinker --defsym=__ROM_SIZE=0x00040000 \
+	-Xlinker --defsym=__RAM_BASE=0x38000000 \
+	-Xlinker --defsym=__RAM_SIZE=0x00020000
 
 SRC_ASM = $(CMSIS)/Device/ARM/ARMCM33/Source/GCC/startup_ARMCM33.S
 SRC_C = $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.c \
@@ -18,7 +22,7 @@ SRC_C = $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.c \
 
 INCLUDE_FLAGS = -I$(CMSIS)/Device/ARM/ARMCM33/Include \
 	-I$(CMSIS)/CMSIS/Core/Include \
-	-I. \
+	-I.
 
 CFLAGS = -mcpu=cortex-m33 \
 	-g3 \
@@ -36,7 +40,7 @@ boot.o: $(SRC_ASM)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 $(BINARY): $(SRC_C) $(SRC_ASM)
-	$(CC) $^ $(CFLAGS) -T $(LINKER_SCRIPT) -o $@
+	$(CC) $^ $(CFLAGS) -T $(LINKER_SCRIPT) $(LINKER_ARGS) -o $@
 	$(OBJ) -D $@ > objdump
 
 # Select the subsystem an521, specify the cortex-m33
