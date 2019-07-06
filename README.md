@@ -19,3 +19,13 @@ Get the toolchain from `https://developer.arm.com/tools-and-software/open-source
 ```
 git clone https://github.com/ARM-software/CMSIS_5.git
 ```
+
+Linker script is extracted from `$(CMSIS)/Device/ARM/ARMCM33/Source/GCC/gcc_arm.ld` and adapted for an521. (See Chapter "SIE-200 Memory Map Overview" of Application Note AN521).
+
+## Build and start
+
+Update path to CMSIS and Qemu in the Makefile.
+
+Compile using `make` and start with `make run`.
+
+Debug using `make gdbserver` and (in another terminal) `make gdb`.
