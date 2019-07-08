@@ -32,7 +32,7 @@
     <o1> Flash Size (in Bytes) <0x0-0xFFFFFFFF:8>
   </h>
   -----------------------------------------------------------------------------*/
-__ROM_BASE = 0x10000000;//__ROM_BASE = 0x00000000;
+__ROM_BASE = 0x00000000;//__ROM_BASE = 0x00000000;
 __ROM_SIZE = 0x00040000;
 
 /*--------------------- Embedded RAM Configuration ----------------------------
@@ -41,7 +41,7 @@ __ROM_SIZE = 0x00040000;
     <o1> RAM Size (in Bytes) <0x0-0xFFFFFFFF:8>
   </h>
  -----------------------------------------------------------------------------*/
-__RAM_BASE = 0x38000000;//__RAM_BASE = 0x20000000;
+__RAM_BASE = 0x28000000;//__RAM_BASE = 0x20000000;
 __RAM_SIZE = 0x00020000;
 
 /*--------------------- Stack / Heap Configuration ----------------------------
@@ -130,12 +130,12 @@ SECTIONS
    * must be set, either with the command line option ‘--section-start’ or in a linker script,
    * to indicate where to place these veneers in memory.
    */
-
+/*
   .gnu.sgstubs :
   {
     . = ALIGN(32);
   } > FLASH
-
+*/
   .ARM.extab :
   {
     *(.ARM.extab* .gnu.linkonce.armextab.*)
