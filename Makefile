@@ -3,16 +3,16 @@ BINARY_LIB_S := importlib_v1.o
 BINARY_NS := nonsecure.elf
 BINARY_ALL := image_s_ns.elf
 
-TOOLCHAIN = ../gcc-arm-none-eabi-8-2018-q4-major-linux/gcc-arm-none-eabi-8-2018-q4-major/bin
+CMSIS ?= ./CMSIS_5
+QEMU_PATH ?= ./qemu/arm-softmmu/qemu-system-arm
+TOOLCHAIN ?= ./gcc-arm-none-eabi-8-2019-q3-update/bin
+
 CROSS_COMPILE = $(TOOLCHAIN)/arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)ld
 GDB = $(CROSS_COMPILE)gdb
 OBJ = $(CROSS_COMPILE)objdump
 NM = $(CROSS_COMPILE)nm
-
-CMSIS = ../CMSIS_5
-QEMU_PATH = /usr/local/bin/qemu-system-arm
 
 TZ_VTOR_TABLE_ADDR = 0x00000000
 LINKER_SCRIPT = gcc_arm.ld
