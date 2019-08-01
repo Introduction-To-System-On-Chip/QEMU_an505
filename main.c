@@ -1,4 +1,5 @@
 #include <ARMCM33_DSP_FP_TZ.h>
+#include "partition_ARMCM33.h"
 #include <arm_cmse.h>
 
 /* Static functions and constant data */
@@ -46,6 +47,10 @@ void nonsecure_init(void) {
 int main(void)
 {
     semihost(SYS_WRITE0, "Start\n");
+
+    // Setup the SAU regions
+    TZ_SAU_Setup();
+
     /* Jump to Non-Secure main address */
     nonsecure_init();
     while (1) {

@@ -135,6 +135,8 @@ SECTIONS
   {
     . = ALIGN(32);
   } > FLASH
+  _ld_veneer_base = ADDR(.gnu.sgstubs);
+  _ld_veneer_limit = .;
 
   .ARM.extab :
   {

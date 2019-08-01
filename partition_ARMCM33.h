@@ -71,19 +71,19 @@
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START0     0x00000000      /* start address of SAU region 0 */
+#define SAU_INIT_START0     0x00200000      /* start address of SAU region 0 */
 
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END0       0x001FFFFF      /* end address of SAU region 0 */
+#define SAU_INIT_END0       (0x00400000 - 1)     /* end address of SAU region 0 */
 
 /*
 //     <o>Region is
 //         <0=>Non-Secure
 //         <1=>Secure, Non-Secure Callable
 */
-#define SAU_INIT_NSC0       1
+#define SAU_INIT_NSC0       0
 /*
 //   </e>
 */
@@ -97,12 +97,12 @@
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START1     0x00200000
+#define SAU_INIT_START1     0x28200000
 
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END1       0x003FFFFF
+#define SAU_INIT_END1       (0x28400000 - 1)
 
 /*
 //     <o>Region is
@@ -123,19 +123,21 @@
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START2     0x20200000
+extern int _ld_veneer_base;
+#define SAU_INIT_START2     _ld_veneer_base
 
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END2       0x203FFFFF
+extern int _ld_veneer_limit;
+#define SAU_INIT_END2       _ld_veneer_limit
 
 /*
 //     <o>Region is
 //         <0=>Non-Secure
 //         <1=>Secure, Non-Secure Callable
 */
-#define SAU_INIT_NSC2       0
+#define SAU_INIT_NSC2       1
 /*
 //   </e>
 */
@@ -144,7 +146,7 @@
 //   <e>Initialize SAU Region 3
 //   <i> Setup SAU Region 3 memory attributes
 */
-#define SAU_INIT_REGION3    1
+#define SAU_INIT_REGION3    0
 
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
