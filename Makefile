@@ -3,9 +3,11 @@ BINARY_LIB_S := importlib_v1.o
 BINARY_NS := nonsecure.elf
 BINARY_ALL := image_s_ns.elf
 
-CMSIS ?= ./CMSIS_5
-QEMU_PATH ?= ./qemu/arm-softmmu/qemu-system-arm
-TOOLCHAIN ?= ./gcc-arm-none-eabi-8-2019-q3-update/bin
+MACHINE_NAME = mps2-an505
+
+CMSIS ?= ../CMSIS_5
+QEMU_PATH ?= ../qemu/arm-softmmu/qemu-system-arm
+TOOLCHAIN ?= ../gcc-arm-none-eabi-8-2019-q3-update/bin
 
 CROSS_COMPILE = $(TOOLCHAIN)/arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
@@ -19,11 +21,12 @@ LINKER_SCRIPT = gcc_arm.ld
 LINKER_ARGS_S = \
 	-Xlinker --defsym=__ROM_BASE=0x10000000 \
 	-Xlinker --defsym=__ROM_SIZE=0x00040000 \
-	-Xlinker --defsym=__RAM_BASE=0x38000000 \
+	-Xlinker --defsym=__RAM_BASE=0x20000000 \
 	-Xlinker --defsym=__RAM_SIZE=0x00020000 \
 	-Xlinker --cmse-implib \
-	-Xlinker --sort-section=alignment \
-	-Xlinker --out-implib=$(BINARY_LIB_S)
+	-Xlinker --sort-section=alignment
+	# \
+	#-Xlinker --out-implib=$(BINARY_LIB_S)
 
 # For simplicity, re-use the same linker script but update the base addresses
 LINKER_SCRIPT_NS = gcc_arm_ns.ld
@@ -60,7 +63,7 @@ CFLAGS_NS = -mcpu=cortex-m33 \
 	$(INCLUDE_FLAGS) \
 	-DARMCM33_DSP_FP_TZ
 
-all: $(BINARY_NS)
+all: $(BINARY_S)
 
 boot.o: $(SRC_ASM)
 	$(CC) $(CFLAGS) -c $^ -o $@
@@ -85,13 +88,13 @@ $(BINARY_ALL): $(BINARY_NS) $(BINARY_S)
 		-o $@ -Intel
 
 
-# Select the subsystem an521, specify the cortex-m33
+# Select the subsystem an505, specify the cortex-m33
 # Ctrl-A, then X to quit
 run: $(BINARY_S)
 	$(QEMU_PATH) \
-		-machine mps2-an521 \
+		-machine $(MACHINE_NAME) \
 		-cpu cortex-m33 \
-		-m 4096 \
+		-m 16M \
 		-nographic \
 		-semihosting \
 		-kernel $(BINARY_S) \
@@ -99,12 +102,12 @@ run: $(BINARY_S)
 
 gdbserver: $(BINARY)
 	$(QEMU_PATH) \
-		-machine mps2-an521 \
+		-machine $(MACHINE_NAME) \
 		-cpu cortex-m33 \
-		-m 4096 \
+		-m 16M \
 		-nographic \
 		-semihosting \
-		-kernel a.out \
+		-kernel $(BINARY_S) \
 		-S -s 
 
 help:
@@ -112,7 +115,7 @@ help:
 		 --machine help
 
 gdb: $(BINARY)
-	$(GDB) $(BINARY) -ex "target remote:1234"
+	$(GDB) $(BINARY_S) -ex "target remote:1234"
 
 clean:
 	rm -f *.o *.elf
