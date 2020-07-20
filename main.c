@@ -1,3 +1,4 @@
+#include "logPrint.h"
 #include <ARMCM33_DSP_FP_TZ.h>
 //#include "partition_ARMCM33.h"
 //#include <arm_cmse.h>
@@ -7,18 +8,6 @@ void __aeabi_unwind_cpp_pr0()
 {
 
 }
-
-/* Static functions and constant data
-const int SYS_WRITE0 = 0x04;
-static void semihost(int sys_id, const void *arg)
-{
-    register int r0 __asm__ ("r0") = sys_id;
-    register const void *r1 __asm__ ("r1") = arg;
-    __asm__ volatile ("bkpt 0xab");
-    (void) r0;
-    (void) r1;
-}
- */
 
 ///* Non-Secure Callable functions */
 //typedef int __attribute__((cmse_nonsecure_call)) ns_func_void(void);
@@ -53,8 +42,7 @@ static void semihost(int sys_id, const void *arg)
 /* Secure main */
 int main(void)
 {
-
-//    semihost(SYS_WRITE0, "Start\n");
+    logPrint("Start...\n");
 
     // Setup the SAU regions
     //TZ_SAU_Setup();

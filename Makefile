@@ -27,7 +27,8 @@ LINKER_SCRIPT = gcc_arm.ld
 
 SRC_ASM = $(CMSIS)/Device/ARM/ARMCM33/Source/GCC/startup_ARMCM33.S
 SRC_C = $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.c \
-	main.c
+	main.c \
+	logPrint.c
 
 INCLUDE_FLAGS = -I$(CMSIS)/Device/ARM/ARMCM33/Include \
 	-I$(CMSIS)/CMSIS/Core/Include \
@@ -36,7 +37,7 @@ INCLUDE_FLAGS = -I$(CMSIS)/Device/ARM/ARMCM33/Include \
 CFLAGS = -mcpu=cortex-m33 -g \
   $(INCLUDE_FLAGS) \
   -DARMCM33_DSP_FP_TZ \
-  -nostdlib -nostartfiles -ffreestanding -mcmse 	-mthumb
+  -nostartfiles -ffreestanding -mcmse -mthumb
 
 #-mcpu=cortex-m33 \
 #	-g3 \
@@ -47,7 +48,7 @@ CFLAGS = -mcpu=cortex-m33 -g \
 #	-DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR) \
 #	-mcmse
 
-OBJS = main.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.o
+OBJS = main.o logPrint.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.o
 
 all: $(BINARY_S)
 
