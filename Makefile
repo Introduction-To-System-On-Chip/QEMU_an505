@@ -8,8 +8,14 @@ MACHINE_NAME = mps2-an505
 CMSIS ?= ../CMSIS_5
 QEMU_PATH ?= ../qemu/arm-softmmu/qemu-system-arm
 TOOLCHAIN ?= ../gcc-arm-none-eabi-8-2019-q3-update/bin
-
 CROSS_COMPILE = $(TOOLCHAIN)/arm-none-eabi-
+
+#TOOLCHAIN = ../gcc-arm-aarch64/bin
+#CROSS_COMPILE = $(TOOLCHAIN)/aarch64-none-elf-
+
+#TOOLCHAIN = ../gcc-linaro-7.3.1-2018.04-rc1-x86_64_armv8l-linux-gnueabihf/bin
+#CROSS_COMPILE = $(TOOLCHAIN)/armv8l-linux-gnueabihf-
+
 CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)ld
 GDB = $(CROSS_COMPILE)gdb
@@ -18,75 +24,47 @@ NM = $(CROSS_COMPILE)nm
 
 TZ_VTOR_TABLE_ADDR = 0x00000000
 LINKER_SCRIPT = gcc_arm.ld
-LINKER_ARGS_S = \
-	-Xlinker --defsym=__ROM_BASE=0x10000000 \
-	-Xlinker --defsym=__ROM_SIZE=0x00040000 \
-	-Xlinker --defsym=__RAM_BASE=0x20000000 \
-	-Xlinker --defsym=__RAM_SIZE=0x00020000 \
-	-Xlinker --cmse-implib \
-	-Xlinker --sort-section=alignment
-	# \
-	#-Xlinker --out-implib=$(BINARY_LIB_S)
-
-# For simplicity, re-use the same linker script but update the base addresses
-LINKER_SCRIPT_NS = gcc_arm_ns.ld
-LINKER_ARGS_NS = \
-	-Xlinker --defsym=__ROM_BASE=$(TZ_VTOR_TABLE_ADDR) \
-	-Xlinker --defsym=__ROM_SIZE=0x00040000 \
-	-Xlinker --defsym=__RAM_BASE=0x28000000 \
-	-Xlinker --defsym=__RAM_SIZE=0x00020000
 
 SRC_ASM = $(CMSIS)/Device/ARM/ARMCM33/Source/GCC/startup_ARMCM33.S
 SRC_C = $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.c \
 	main.c
 
-SRC_C_NS = $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.c \
-	main_ns.c
-
 INCLUDE_FLAGS = -I$(CMSIS)/Device/ARM/ARMCM33/Include \
 	-I$(CMSIS)/CMSIS/Core/Include \
 	-I.
 
-CFLAGS = -mcpu=cortex-m33 \
-	-g3 \
-	--specs=nosys.specs \
-	-Wall \
-	$(INCLUDE_FLAGS) \
-	-DARMCM33_DSP_FP_TZ \
-	-DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR) \
-	-mcmse
+CFLAGS = -mcpu=cortex-m33 -g \
+  $(INCLUDE_FLAGS) \
+  -DARMCM33_DSP_FP_TZ \
+  -nostdlib -nostartfiles -ffreestanding -mcmse 	-mthumb
 
-CFLAGS_NS = -mcpu=cortex-m33 \
-	-g3 \
-	--specs=nosys.specs \
-	-Wall \
-	$(INCLUDE_FLAGS) \
-	-DARMCM33_DSP_FP_TZ
+#-mcpu=cortex-m33 \
+#	-g3 \
+#	--specs=nosys.specs \
+#	-Wall \
+#	$(INCLUDE_FLAGS) \
+#	-DARMCM33_DSP_FP_TZ \
+#	-DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR) \
+#	-mcmse
+
+OBJS = main.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.o
 
 all: $(BINARY_S)
 
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
 boot.o: $(SRC_ASM)
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -mcpu=cortex-m33 -c $^ -o $@
 
 # Generate two separate images (one for Non-Secure and another for Secure) with
 # different linker scripts (as they will have different addresses to locate the code).
 # This is to make sure that there is no clash with the symbols.
-$(BINARY_S): $(SRC_C) $(SRC_ASM)
-	$(CC) $^ $(CFLAGS) -T $(LINKER_SCRIPT) $(LINKER_ARGS_S) -o $@
+$(BINARY_S): $(OBJS) $(SRC_ASM) boot.o
+	$(LD) boot.o $(OBJS) -T $(LINKER_SCRIPT) -o $@
+#	$(CC) $^ $(CFLAGS) -T $(LINKER_SCRIPT) $(LINKER_ARGS_S) -o $@
 	$(NM) $@ > nm_s
 	$(OBJ) -D $@ > objdump_s
-
-$(BINARY_NS): $(SRC_C_NS) $(BINARY_S) $(SRC_ASM)
-	$(CC) $(SRC_C_NS) $(SRC_ASM) $(BINARY_LIB_S) $(CFLAGS_NS) \
-		-T $(LINKER_SCRIPT_NS) $(LINKER_ARGS_NS) -o $@
-	$(OBJ) -D $@ > objdump_ns
-
-$(BINARY_ALL): $(BINARY_NS) $(BINARY_S)
-	srec_cat \
-		$(BINARY_NS) -Binary -offset 0x00000000 \
-		$(BINARY_S)  -Binary -offset 0x10000000 \
-		-o $@ -Intel
-
 
 # Select the subsystem an505, specify the cortex-m33
 # Ctrl-A, then X to quit
@@ -97,8 +75,7 @@ run: $(BINARY_S)
 		-m 16M \
 		-nographic \
 		-semihosting \
-		-kernel $(BINARY_S) \
-		-device loader,file=$(BINARY_NS),addr=0x10000000
+		-kernel $(BINARY_S)
 
 gdbserver: $(BINARY)
 	$(QEMU_PATH) \
@@ -110,12 +87,12 @@ gdbserver: $(BINARY)
 		-kernel $(BINARY_S) \
 		-S -s 
 
+gdb: $(BINARY)
+	$(GDB) $(BINARY_S) -ex "target remote:1234"
+
 help:
 	$(QEMU_PATH) \
 		 --machine help
 
-gdb: $(BINARY)
-	$(GDB) $(BINARY_S) -ex "target remote:1234"
-
 clean:
-	rm -f *.o *.elf
+	rm -f *.o *.elf $(OBJS)

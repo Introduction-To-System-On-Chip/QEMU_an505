@@ -41,7 +41,7 @@ __ROM_SIZE = 0x00040000;
     <o1> RAM Size (in Bytes) <0x0-0xFFFFFFFF:8>
   </h>
  -----------------------------------------------------------------------------*/
-__RAM_BASE = 0x20000000;//__RAM_BASE = 0x20000000;
+__RAM_BASE = 0x30000000;//__RAM_BASE = 0x20000000;
 __RAM_SIZE = 0x00020000;
 
 /*--------------------- Stack / Heap Configuration ----------------------------
@@ -59,8 +59,8 @@ __HEAP_SIZE  = 0x00000C00;
 
 MEMORY
 {
-  FLASH (rx)  : ORIGIN = __ROM_BASE, LENGTH = __ROM_SIZE
-  RAM   (rwx) : ORIGIN = __RAM_BASE, LENGTH = __RAM_SIZE
+  FLASH (rx)  : ORIGIN = __ROM_BASE, LENGTH = 224M
+  RAM   (rwx) : ORIGIN = __RAM_BASE, LENGTH = 16M
 }
 
 /* Linker script to place sections and symbol values. Should be used together

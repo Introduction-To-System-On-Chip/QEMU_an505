@@ -1,6 +1,12 @@
 #include <ARMCM33_DSP_FP_TZ.h>
 //#include "partition_ARMCM33.h"
 //#include <arm_cmse.h>
+#include <stdint.h>
+
+void __aeabi_unwind_cpp_pr0()
+{
+
+}
 
 /* Static functions and constant data
 const int SYS_WRITE0 = 0x04;
@@ -47,6 +53,7 @@ static void semihost(int sys_id, const void *arg)
 /* Secure main */
 int main(void)
 {
+
 //    semihost(SYS_WRITE0, "Start\n");
 
     // Setup the SAU regions
