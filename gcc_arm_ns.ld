@@ -23,6 +23,25 @@ SECTIONS
   	*(.bss) 
   } > NS_FLASH
 
+  .ARM.exidx :
+  {
+    __exidx_start = .;
+     *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    __exidx_end = .;
+  } > NS_FLASH
+  /* define a global symbol _etext just after the last code byte */
+  _etext = .;
+
+  .heap : {
+    __heap_start__ = .;
+    end = __heap_start__;
+    _end = end;
+    __end = end;
+    KEEP(*(.heap))
+    __heap_end__ = .;
+    __HeapLimit = __heap_end__;
+  } > NS_FLASH
+
   /* Set __StackTop for the vector table first index. */
   __StackTop = ORIGIN(NS_FLASH_END) + LENGTH(NS_FLASH_END);
   /*

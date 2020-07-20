@@ -48,7 +48,7 @@ CFLAGS = \
   -DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR)
 
 
-#	--specs=nosys.specs \
+#	 \
 #	-Wall \
 
 SECURE_LINKER_ARGS = \
@@ -57,7 +57,7 @@ SECURE_LINKER_ARGS = \
   -Xlinker --out-implib=$(BINARY_LIB_S)
 
 OBJS = main.o logPrint.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.o
-OBJS_NS = main_ns.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.o
+OBJS_NS = main_ns.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33_ns.o
 
 all: $(BINARY_S) $(BINARY_NS)
 
@@ -67,16 +67,19 @@ all: $(BINARY_S) $(BINARY_NS)
 boot.o: $(SRC_ASM)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
+boot_ns.o: boot_ns.S
+	$(CC) $(COMMON_CFLAGS) -c $^ -o $@
+
 # Generate two separate images (one for Non-Secure and another for Secure) with
 # different linker scripts (as they will have different addresses to locate the code).
 # This is to make sure that there is no clash with the symbols.
-$(BINARY_S): $(OBJS) $(SRC_ASM) boot.o
+$(BINARY_S): $(OBJS) boot.o
 	$(CC) $(CFLAGS) $(SECURE_LINKER_ARGS) boot.o $(OBJS) -T $(LINKER_SCRIPT) -o $@
 	$(NM) $@ > nm_s.out
 	$(OBJ) -D $@ > objdump_s.out
 
-$(BINARY_NS): $(OBJS_NS)
-	$(CC) $(BINARY_LIB_S) $^ $(COMMON_CFLAGS) -T $(LINKER_SCRIPT_NS) -o $@
+$(BINARY_NS): $(OBJS_NS) boot_ns.o
+	$(CC) $(BINARY_LIB_S) $^ --specs=nosys.specs -DARMCM33 $(COMMON_CFLAGS) -T $(LINKER_SCRIPT_NS) -o $@
 	$(NM) $@ > nm_ns.out
 	$(OBJ) -D $@ > objdump_ns.out
 
