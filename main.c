@@ -1,24 +1,24 @@
 #include "logPrint.h"
-#include <ARMCM33_DSP_FP_TZ.h>
-//#include "partition_ARMCM33.h"
-//#include <arm_cmse.h>
+#include "ARMCM33_DSP_FP_TZ.h"
+#include "partition_ARMCM33.h"
+
+#include <arm_cmse.h>
 #include <stdint.h>
 
 void __aeabi_unwind_cpp_pr0()
 {
-
 }
 
-///* Non-Secure Callable functions */
-//typedef int __attribute__((cmse_nonsecure_call)) ns_func_void(void);
+/* Non-Secure Callable functions */
+typedef int __attribute__((cmse_nonsecure_call)) ns_func_void(void);
 
-//void __attribute__((cmse_nonsecure_entry)) sec_sum(int *p, size_t s)
-//{
-//    semihost(SYS_WRITE0, "In security function.\n");
-//    for (size_t i = 0; i < s; i++) {
-//        p[i] = i;
-//    }
-//}
+void __attribute__((cmse_nonsecure_entry)) sec_sum(int *p, size_t s)
+{
+  for (size_t i = 0; i < s; i++)
+  {
+    p[i] = i;
+  }
+}
 
 //void nonsecure_init(void) {
 //    /* Set the address of the Vector Table of the Non-Secure */
@@ -44,11 +44,12 @@ int main(void)
 {
     logPrint("Start...\n");
 
-    // Setup the SAU regions
+    /* Setup the SAU regions */
     //TZ_SAU_Setup();
 
     /* Jump to Non-Secure main address */
-//    nonsecure_init();
+    //nonsecure_init();
+
     while (1) {
         __NOP();
     }

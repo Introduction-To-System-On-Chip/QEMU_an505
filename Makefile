@@ -34,19 +34,23 @@ INCLUDE_FLAGS = -I$(CMSIS)/Device/ARM/ARMCM33/Include \
 	-I$(CMSIS)/CMSIS/Core/Include \
 	-I.
 
-CFLAGS = -mcpu=cortex-m33 -g \
+CFLAGS = -mcpu=cortex-m33 \
+  -g \
   $(INCLUDE_FLAGS) \
   -DARMCM33_DSP_FP_TZ \
-  -nostartfiles -ffreestanding -mcmse -mthumb
+  -nostartfiles -ffreestanding \
+  -mcmse \
+  -mthumb
 
-#-mcpu=cortex-m33 \
-#	-g3 \
 #	--specs=nosys.specs \
 #	-Wall \
-#	$(INCLUDE_FLAGS) \
-#	-DARMCM33_DSP_FP_TZ \
-#	-DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR) \
-#	-mcmse
+#	-DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR)
+
+
+SECURE_LINKER_ARGS = \
+  -Xlinker --sort-section=alignment \
+  -Xlinker --cmse-implib \
+  -Xlinker --out-implib=CMSE_importLib.o
 
 OBJS = main.o logPrint.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.o
 
@@ -56,13 +60,14 @@ all: $(BINARY_S)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 boot.o: $(SRC_ASM)
-	$(CC) $(CFLAGS) -mcpu=cortex-m33 -c $^ -o $@
+	$(CC) $(CFLAGS) -c $^ -o $@
 
 # Generate two separate images (one for Non-Secure and another for Secure) with
 # different linker scripts (as they will have different addresses to locate the code).
 # This is to make sure that there is no clash with the symbols.
 $(BINARY_S): $(OBJS) $(SRC_ASM) boot.o
 	$(LD) boot.o $(OBJS) -T $(LINKER_SCRIPT) -o $@
+	$(CC) $(CFLAGS) $(SECURE_LINKER_ARGS) boot.o $(OBJS) -T $(LINKER_SCRIPT) -o $@
 #	$(CC) $^ $(CFLAGS) -T $(LINKER_SCRIPT) $(LINKER_ARGS_S) -o $@
 	$(NM) $@ > nm_s
 	$(OBJ) -D $@ > objdump_s
