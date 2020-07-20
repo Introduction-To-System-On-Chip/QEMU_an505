@@ -45,7 +45,7 @@ int main(void)
     logPrint("Start...\n");
 
     /* Setup the SAU regions */
-    //TZ_SAU_Setup();
+    TZ_SAU_Setup();
 
     /* Jump to Non-Secure main address */
     //nonsecure_init();

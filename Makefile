@@ -66,7 +66,6 @@ boot.o: $(SRC_ASM)
 # different linker scripts (as they will have different addresses to locate the code).
 # This is to make sure that there is no clash with the symbols.
 $(BINARY_S): $(OBJS) $(SRC_ASM) boot.o
-	$(LD) boot.o $(OBJS) -T $(LINKER_SCRIPT) -o $@
 	$(CC) $(CFLAGS) $(SECURE_LINKER_ARGS) boot.o $(OBJS) -T $(LINKER_SCRIPT) -o $@
 #	$(CC) $^ $(CFLAGS) -T $(LINKER_SCRIPT) $(LINKER_ARGS_S) -o $@
 	$(NM) $@ > nm_s
