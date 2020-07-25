@@ -100,8 +100,8 @@ run: $(BINARY_S)
 		-m 16M \
 		-nographic \
 		-semihosting \
-		-kernel $(BINARY_S) \
-		-device loader,file=$(BINARY_NS),addr=0x00000000
+		-device loader,file=$(BINARY_NS) \
+		-device loader,file=$(BINARY_S)
 
 gdbserver: $(BINARY)
 	$(QEMU_PATH) \
