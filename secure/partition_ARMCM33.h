@@ -32,7 +32,7 @@
 /*
 // <e>Initialize Security Attribution Unit (SAU) CTRL register
 */
-#define SAU_INIT_CTRL          1
+#define SAU_INIT_CTRL          0
 
 /*
 //   <q> Enable SAU
@@ -47,7 +47,7 @@
 //   <i> Value for SAU->CTRL register bit ALLNS
 //   <i> When all Memory is Non-Secure (ALLNS is 1), IDAU can override memory map configuration.
 */
-#define SAU_INIT_CTRL_ALLNS  0
+#define SAU_INIT_CTRL_ALLNS  1
 
 /*
 // </e>
@@ -71,7 +71,7 @@
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START0     0x00200000      /* start address of SAU region 0 */
+#define SAU_INIT_START0     0x20000000      /* start address of SAU region 0 */
 
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
@@ -92,7 +92,7 @@
 //   <e>Initialize SAU Region 1
 //   <i> Setup SAU Region 1 memory attributes
 */
-#define SAU_INIT_REGION1    1
+#define SAU_INIT_REGION1    0
 
 /*
 //     <o>Start Address <0-0xFFFFFFE0>

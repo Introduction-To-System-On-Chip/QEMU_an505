@@ -2,11 +2,10 @@ __STACK_SIZE = 0x00100000;
 
 MEMORY
 {
-   NS_FLASH     (rx)  : ORIGIN = 0x00000000, LENGTH = 2M
-   NS_FLASH_END (rx)  : ORIGIN = 0x00100000, LENGTH = 1M
+   NS_FLASH     (rx)  : ORIGIN = 0x20000000, LENGTH = 2M
+   NS_FLASH_END (rx)  : ORIGIN = 0x20100000, LENGTH = 1M
    S_FLASH      (rx)  : ORIGIN = 0x10000000, LENGTH = 224M
-   S_RAM        (rwx) : ORIGIN = 0x20000000, LENGTH = 16M
-   NS_RAM       (rwx) : ORIGIN = 0x28000000, LENGTH = 16M
+   NS_RAM       (rwx) : ORIGIN = 0x20200000, LENGTH = 16M
 }
 
 /* Entry Point (reset) */

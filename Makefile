@@ -21,19 +21,25 @@ LD = $(CROSS_COMPILE)ld
 GDB = $(CROSS_COMPILE)gdb
 OBJ = $(CROSS_COMPILE)objdump
 NM = $(CROSS_COMPILE)nm
+READELF = $(CROSS_COMPILE)readelf
 
-TZ_VTOR_TABLE_ADDR = 0x00000000
-LINKER_SCRIPT = gcc_arm.ld
-LINKER_SCRIPT_NS = gcc_arm_ns.ld
+TZ_VTOR_TABLE_ADDR = 0x20000000
+LINKER_SCRIPT = secure/gcc_arm.ld
+LINKER_SCRIPT_NS = non_secure/gcc_arm_ns.ld
 
-SRC_ASM = $(CMSIS)/Device/ARM/ARMCM33/Source/GCC/startup_ARMCM33.S
-SRC_C = $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.c \
-	main.c \
-	logPrint.c
+# From $(CMSIS)/Device/ARM/ARMCM33/Source/GCC/startup_ARMCM33.S
+SRC_ASM = secure/startup_ARMCM33.S
+# From $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.c
+SRC_C = \
+  secure/system_ARMCM33.c \
+	secure/main.c \
+	common/logPrint.c
 
 INCLUDE_FLAGS = -I$(CMSIS)/Device/ARM/ARMCM33/Include \
 	-I$(CMSIS)/CMSIS/Core/Include \
-	-I.
+	-I./secure \
+	-I./non_secure \
+	-I./common
 
 COMMON_CFLAGS = -mcpu=cortex-m33 \
   -g \
@@ -47,41 +53,43 @@ CFLAGS = \
   -mcmse \
   -DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR)
 
-
-#	 \
-#	-Wall \
-
 SECURE_LINKER_ARGS = \
   -Xlinker --sort-section=alignment \
   -Xlinker --cmse-implib \
   -Xlinker --out-implib=$(BINARY_LIB_S)
 
-OBJS = main.o logPrint.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33.o
-OBJS_NS = main_ns.o $(CMSIS)/Device/ARM/ARMCM33/Source/system_ARMCM33_ns.o
+OBJS = secure/main.o \
+       common/logPrint.o \
+       secure/system_ARMCM33.o
+
+OBJS_NS = non_secure/main_ns.o \
+          non_secure/system_ARMCM33_ns.o
 
 all: $(BINARY_S) $(BINARY_NS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-boot.o: $(SRC_ASM)
+secure/boot.o: $(SRC_ASM)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-boot_ns.o: boot_ns.S
+non_secure/boot_ns.o: non_secure/boot_ns.S
 	$(CC) $(COMMON_CFLAGS) -c $^ -o $@
 
 # Generate two separate images (one for Non-Secure and another for Secure) with
 # different linker scripts (as they will have different addresses to locate the code).
 # This is to make sure that there is no clash with the symbols.
-$(BINARY_S): $(OBJS) boot.o
-	$(CC) $(CFLAGS) $(SECURE_LINKER_ARGS) boot.o $(OBJS) -T $(LINKER_SCRIPT) -o $@
+$(BINARY_S): $(OBJS) secure/boot.o
+	$(CC) $(CFLAGS) $(SECURE_LINKER_ARGS) $^ -T $(LINKER_SCRIPT) -o $@
 	$(NM) $@ > nm_s.out
 	$(OBJ) -D $@ > objdump_s.out
+	$(READELF) -a $@ > readelf_s.out
 
-$(BINARY_NS): $(OBJS_NS) boot_ns.o
+$(BINARY_NS): $(OBJS_NS) non_secure/boot_ns.o
 	$(CC) $(BINARY_LIB_S) $^ --specs=nosys.specs -DARMCM33 $(COMMON_CFLAGS) -T $(LINKER_SCRIPT_NS) -o $@
 	$(NM) $@ > nm_ns.out
 	$(OBJ) -D $@ > objdump_ns.out
+	$(READELF) -a $@ > readelf_ns.out
 
 # Select the subsystem an505, specify the cortex-m33
 # Ctrl-A, then X to quit
@@ -92,7 +100,8 @@ run: $(BINARY_S)
 		-m 16M \
 		-nographic \
 		-semihosting \
-		-kernel $(BINARY_S)
+		-kernel $(BINARY_S) \
+		-device loader,file=$(BINARY_NS),addr=0x00000000
 
 gdbserver: $(BINARY)
 	$(QEMU_PATH) \
@@ -101,7 +110,8 @@ gdbserver: $(BINARY)
 		-m 16M \
 		-nographic \
 		-semihosting \
-		-kernel $(BINARY_S) \
+		-device loader,file=$(BINARY_NS) \
+		-device loader,file=$(BINARY_S) \
 		-S -s 
 
 gdb: $(BINARY)
