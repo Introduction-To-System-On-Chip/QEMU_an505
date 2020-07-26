@@ -106,6 +106,7 @@ run: $(BINARY_S)
 		-m 16M \
 		-nographic \
 		-semihosting \
+		-d int,cpu_reset \
 		-device loader,file=$(BINARY_NS) \
 		-device loader,file=$(BINARY_S)
 
@@ -118,6 +119,7 @@ gdbserver: $(BINARY)
 		-semihosting \
 		-device loader,file=$(BINARY_NS) \
 		-device loader,file=$(BINARY_S) \
+		-d int,cpu_reset \
 		-S -s 
 
 gdb: $(BINARY)
