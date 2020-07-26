@@ -2,6 +2,13 @@
 
 `sudo apt-get install libncurses5`
 
+Based on
+- Arm CoreLink SIE-300 AXI5 System IP for Embedded Technical Reference Manual:
+  https://developer.arm.com/documentation/101526/0100/
+
+- AN505 - Example IoT Kit Subsystem Design for a V2M-MPS2+:
+  https://developer.arm.com/documentation/dai0505/b/
+
 ## Get QEMU
 
 ```
@@ -14,6 +21,10 @@ mkdir -p build
 ./configure
 make
 ```
+
+QEMU needs the following patches:
+http://next.patchew.org/QEMU/20180220180325.29818-1-peter.maydell@linaro.org/20180220180325.29818-2-peter.maydell@linaro.org/
+
 
 ## Get Arm toolchain
  
