@@ -16,7 +16,45 @@ void semihost(int sys_id, const void *arg)
   (void) r1;
 }
 
-void logPrint(const char* printString)
+void logPrint(const char* format, ...)
 {
-  semihost(SYS_WRITE0, printString);
+  char buffer[256] = {'\0'};
+  int bufferPos = 0;
+
+  unsigned int hex;
+
+  va_list arg;
+  va_start(arg, format);
+
+  for(const char* nextChar = format; *nextChar != '\0'; nextChar++)
+  {
+    while ((*nextChar != '%') && (*nextChar != '\0'))
+    {
+      sprintf(buffer + bufferPos, "%c", *nextChar);
+      bufferPos++;
+      nextChar++;
+    }
+
+    if (*nextChar == '\0')
+    {
+      break;
+    }
+
+    nextChar++;
+
+    switch (*nextChar)
+    {
+      case 'x':
+        hex = va_arg(arg, unsigned int);
+        int written = 0;
+        written = sprintf(buffer + bufferPos, "%x", hex);
+        bufferPos = bufferPos + written;
+        break;
+    }
+  }
+
+  buffer[bufferPos] = '\0';
+  va_end(arg);
+  semihost(SYS_WRITE0, buffer);
 }
+

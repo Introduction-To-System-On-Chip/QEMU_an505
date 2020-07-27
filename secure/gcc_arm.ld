@@ -44,4 +44,11 @@ SECTIONS
    * so the limit of the stack is less than the base size address.
    */
   __StackLimit = __StackTop - __STACK_SIZE;
+
+  /* Put some space between stack and heap */
+  . = ALIGN(8);
+  . = . + 0x2000;
+
+  _end = .;
+  PROVIDE(end = .);
 }

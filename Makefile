@@ -48,7 +48,8 @@ CFLAGS = \
     $(COMMON_CFLAGS) \
     -DARMCM33_DSP_FP_TZ \
     -mcmse \
-    -DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR)
+    -DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR) \
+    -specs=nano.specs -specs=nosys.specs
 
 CFLAGS_NS = \
     $(COMMON_CFLAGS) \

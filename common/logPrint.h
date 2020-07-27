@@ -3,6 +3,6 @@
 
 #include <stdarg.h>
 
-void logPrint(const char* printString);
+void logPrint(const char* format, ...);
 
 #endif
