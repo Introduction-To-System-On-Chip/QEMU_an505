@@ -53,11 +53,13 @@ CFLAGS = \
     -DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR) \
     -specs=nano.specs -specs=nosys.specs \
     -ffunction-sections \
-    -Wl,--gc-sections
+    -Wl,--gc-sections \
+    -DC_SECURE_CODE
 
 CFLAGS_NS = \
     $(COMMON_CFLAGS) \
-    --specs=nosys.specs -DARMCM33
+    --specs=nosys.specs -DARMCM33 \
+    -DC_NON_SECURE_CODE
 
 SECURE_LINKER_ARGS = \
     -Xlinker --sort-section=alignment \
@@ -70,13 +72,14 @@ OBJS = \
     secure/system_ARMCM33.o \
     secure/boot.o \
     secure/main.o \
-	  common/uart.o
+    common/uart.o
 
 OBJS_NS = \
     non_secure/main_ns.o \
     non_secure/system_ARMCM33_ns.o \
     non_secure/boot_ns.o \
-    $(BINARY_LIB_S)
+	  common/uart.o \
+	  $(BINARY_LIB_S)
 
 all: $(BINARY_S) $(BINARY_NS)
 

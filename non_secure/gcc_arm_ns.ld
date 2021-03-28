@@ -2,9 +2,9 @@ __STACK_SIZE = 0x00100000;
 
 MEMORY
 {
-   NS_FLASH     (rx)  : ORIGIN = 0x00200000, LENGTH = 1M
-   NS_FLASH_END (rx)  : ORIGIN = 0x00800000, LENGTH = 1M
-   NS_RAM       (rwx) : ORIGIN = 0x20000000, LENGTH = 16M
+   NS_FLASH     (rx)  : ORIGIN = 0x00200000, LENGTH = 512K
+   NS_FLASH_END (rx)  : ORIGIN = 0x00260000, LENGTH = 512K
+   NS_RAM       (rwx) : ORIGIN = 0x28200000, LENGTH = 32K
 }
 
 /* Entry Point (reset) */
@@ -39,6 +39,8 @@ SECTIONS
     __heap_end__ = .;
     __HeapLimit = __heap_end__;
   } > NS_FLASH
+
+
 
   /* Set __StackTop for the vector table first index. */
   __StackTop = ORIGIN(NS_FLASH_END) + LENGTH(NS_FLASH_END);

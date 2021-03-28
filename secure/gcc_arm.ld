@@ -2,7 +2,7 @@ __STACK_SIZE = 0x00100000;
 
 MEMORY
 {
-   /* Flash is actually 224M */
+ /* Flash is actually 224M */
    S_FLASH     (rx)  : ORIGIN = 0x10000000, LENGTH = 2M
    S_FLASH_END (rx)  : ORIGIN = 0x10100000, LENGTH = 1M 
    S_RAM       (rwx) : ORIGIN = 0x30000000, LENGTH = 16M

@@ -1,11 +1,12 @@
+#include "logPrint.h"
+#include "uart.h"
 #include <stddef.h>
 
-extern int sec_sum(int *, size_t);
+extern int sec_sum(void);
 
 /* Non Secure main() */
 int main(void) {
-    int p[256];
-    sec_sum(p, 256);
+    sec_sum();
 
     return 0;
 }
