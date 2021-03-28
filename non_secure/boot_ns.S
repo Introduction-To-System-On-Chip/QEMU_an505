@@ -74,9 +74,10 @@ __Vectors_End:
                 .globl   Reset_Handler
                 .fnstart
 Reset_Handler:
-                ldr      r0, =__StackLimit
-                msr      msplim, r0
-                bl       main
+                //ldr      r0, =__StackLimit
+                //msr      msplim, r0
+                nop
+                b       main
                 .fnend
                 .size    Reset_Handler, . - Reset_Handler
 /* The default macro is not used for HardFault_Handler

@@ -89,6 +89,10 @@ void SystemInit (void)
   SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk;
 #endif
 
+  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk | SCB_SHCSR_MEMFAULTENA_Msk |
+              SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_SECUREFAULTENA_Msk |
+              SCB_SHCSR_USGFAULTENA_Msk;
+
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
   TZ_SAU_Setup();
 #endif

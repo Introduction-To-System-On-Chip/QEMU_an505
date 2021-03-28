@@ -25,12 +25,11 @@
                 .syntax  unified
                 .arch    armv8-m.main
 
-                 .section .vectors
+                .section .vectors
                 .align   2
                 .globl   __Vectors
                 .globl   __Vectors_End
                 .globl   __Vectors_Size
-
 __Vectors:
                 .long    __StackTop                         /*     Top of Stack */
                 .long    Reset_Handler                      /*     Reset Handler */
@@ -49,6 +48,7 @@ __Vectors:
                 .long    PendSV_Handler                     /*  -2 PendSV Handler */
                 .long    SysTick_Handler                    /*  -1 SysTick Handler */
 
+                /* Interrupts */
                 .long    Interrupt0_Handler                 /*   0 Interrupt 0 */
                 .long    Interrupt1_Handler                 /*   1 Interrupt 1 */
                 .long    Interrupt2_Handler                 /*   2 Interrupt 2 */
@@ -60,10 +60,11 @@ __Vectors:
                 .long    Interrupt8_Handler                 /*   8 Interrupt 8 */
                 .long    Interrupt9_Handler                 /*   9 Interrupt 9 */
 
-                .space   (470 * 4)
+                .space   (470 * 4)                          /* Interrupts 10 .. 480 are left out */
 __Vectors_End:
                 .equ     __Vectors_Size, __Vectors_End - __Vectors
                 .size    __Vectors, . - __Vectors
+
 
                 .thumb
                 .section .text
@@ -76,9 +77,13 @@ __Vectors_End:
 Reset_Handler:
                 ldr      r0, =__StackLimit
                 msr      msplim, r0
+
+/* CMSIS System Initialization for SAU regions */
                 bl       main
+
                 .fnend
                 .size    Reset_Handler, . - Reset_Handler
+
 /* The default macro is not used for HardFault_Handler
  * because this results in a poor debug illusion.
  */
@@ -86,8 +91,8 @@ Reset_Handler:
                 .type    HardFault_Handler, %function
                 .weak    HardFault_Handler
                 .fnstart
- HardFault_Handler:
-                 b        .
+HardFault_Handler:
+                b        .
                 .fnend
                 .size    HardFault_Handler, . - HardFault_Handler
 
@@ -96,10 +101,9 @@ Reset_Handler:
                 .weak    Default_Handler
                 .fnstart
 Default_Handler:
-                 b        .
+                b        .
                 .fnend
                 .size    Default_Handler, . - Default_Handler
-
 
 /* Macro to define default exception/interrupt handlers.
  * Default handler are weak symbols with an endless loop.

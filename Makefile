@@ -19,7 +19,7 @@ READELF = $(CROSS_COMPILE)readelf
 
 LINKER_SCRIPT_NS = non_secure/gcc_arm_ns.ld
 # Must match the same value in the NS linker script where the vector table is.
-TZ_VTOR_TABLE_ADDR = 0x20000000
+TZ_VTOR_TABLE_ADDR = 0x00200000
 LINKER_SCRIPT = secure/gcc_arm.ld
 
 # From $(CMSIS_PATH)/Device/ARM/ARMCM33/Source/GCC/startup_ARMCM33.S
@@ -28,7 +28,9 @@ SRC_ASM = secure/startup_ARMCM33.S
 SRC_C = \
     secure/system_ARMCM33.c \
 	  secure/main.c \
-	  common/logPrint.c
+	  secure/main_mpu.c \
+	  common/logPrint.c \
+	  common/uart.c
 
 INCLUDE_FLAGS = \
     -I$(CMSIS_PATH)/Device/ARM/ARMCM33/Include \
@@ -49,7 +51,9 @@ CFLAGS = \
     -DARMCM33_DSP_FP_TZ \
     -mcmse \
     -DTZ_VTOR_TABLE_ADDR=$(TZ_VTOR_TABLE_ADDR) \
-    -specs=nano.specs -specs=nosys.specs
+    -specs=nano.specs -specs=nosys.specs \
+    -ffunction-sections \
+    -Wl,--gc-sections
 
 CFLAGS_NS = \
     $(COMMON_CFLAGS) \
@@ -58,13 +62,15 @@ CFLAGS_NS = \
 SECURE_LINKER_ARGS = \
     -Xlinker --sort-section=alignment \
     -Xlinker --cmse-implib \
-    -Xlinker --out-implib=$(BINARY_LIB_S)
+    -Xlinker --out-implib=$(BINARY_LIB_S) \
+    -Xlinker -Map=output.map
 
 OBJS = \
-    secure/main.o \
     common/logPrint.o \
     secure/system_ARMCM33.o \
-    secure/boot.o
+    secure/boot.o \
+    secure/main.o \
+	  common/uart.o
 
 OBJS_NS = \
     non_secure/main_ns.o \
@@ -100,7 +106,7 @@ $(BINARY_NS): $(OBJS_NS)
 
 # Select the subsystem an505, specify the cortex-m33
 # Ctrl-A, then X to quit
-run: $(BINARY_S)
+run: $(BINARY_S) $(BINARY_NS)
 	$(QEMU_PATH) \
 		-machine $(MACHINE_NAME) \
 		-cpu cortex-m33 \
@@ -111,7 +117,7 @@ run: $(BINARY_S)
 		-device loader,file=$(BINARY_NS) \
 		-device loader,file=$(BINARY_S)
 
-gdbserver: $(BINARY)
+gdbserver: $(BINARY_S) $(BINARY_NS)
 	$(QEMU_PATH) \
 		-machine $(MACHINE_NAME) \
 		-cpu cortex-m33 \
