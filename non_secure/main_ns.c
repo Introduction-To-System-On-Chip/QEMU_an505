@@ -8,5 +8,6 @@ extern int sec_sum(void);
 int main(void) {
     sec_sum();
 
+    while(1);
     return 0;
 }

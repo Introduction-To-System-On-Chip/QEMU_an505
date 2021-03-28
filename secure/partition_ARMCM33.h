@@ -77,7 +77,7 @@
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END0       (SAU_INIT_START0 + 0x400000)
+#define SAU_INIT_END0       (SAU_INIT_START0 + 0x00400000)
 /* end address of SAU region 0 */
 
 /*
@@ -125,14 +125,12 @@
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-extern int _ld_veneer_base;
-#define SAU_INIT_START2     _ld_veneer_base
+#define SAU_INIT_START2     0x10001920
 
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-extern int _ld_veneer_limit;
-#define SAU_INIT_END2       _ld_veneer_limit
+#define SAU_INIT_END2       0x10001920
 
 /*
 //     <o>Region is

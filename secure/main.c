@@ -24,8 +24,8 @@ typedef struct /* see "ARM CoreLink SSE-200 Subsystem Technical Reference Manual
 } MPC_TypeDef;
 
 #define MPC_SRAM0 ((MPC_TypeDef *) 0x58007000) /* Control for 0x[01]0000000 */
-#define MPC_SRAM1 ((MPC_TypeDef *) 0x58008000) /* Control for 0x[12]0000000 */
-#define MPC_SRAM2 ((MPC_TypeDef *) 0x58009000) /* Control for 0x[23]0000000 */
+//https://developer.arm.com/documentation/101104/0200/programmers-model/base-element/secure-privilege-control-block
+#define SPCBlock_Base ((uint32_t*)0x58008000)
 
 void printCmseAddressInfo(uint32_t addr)
 {
@@ -138,21 +138,36 @@ int main(void)
     SystemInit();
     initUart();
     printString("Start\n");
+ 
+    volatile uint32_t* spcb = 0x50080000 + 0x14;
+    *spcb |= 1 | 2;
+    logPrint("SPCB content 0x%x\n", *spcb);
    
     initMpc();
+
+    /* 
+    
+    The Non-secure Callable Configuration register allows software to define
+     callable regions of memory. The register can do this if the Secure Code
+     region is 0x1000_0000 to 0x1FFF_FFFF and the Secure RAM region is
+      0x3000_0000 to 0x3FFF_FFFF.
+    */
+    *spcb |= 1 | 2;
+    logPrint("SPCB content 0x%x\n", *spcb);
 
     printCmseAddressInfo(0x00000000);
     printCmseAddressInfo(0x00200000);
     printCmseAddressInfo(0x10000000);
     printCmseAddressInfo(0x20000000);
-    printCmseAddressInfo(0x30000000);
-
+    printCmseAddressInfo(SAU_INIT_START2);
+    printCmseAddressInfo(SAU_INIT_END2);
     /* Jump to Non-Secure main address */
     nonsecure_init();
 
     while (1)
     {
       __NOP();
+      logPrint("Should not happen..\n");
     }
     return -1;
 }
